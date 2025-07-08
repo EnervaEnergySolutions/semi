@@ -24,8 +24,13 @@ export default function Profile() {
   const [companyData, setCompanyData] = useState({
     name: "",
     address: "",
+    streetAddress: "",
+    city: "",
+    province: "",
+    postalCode: "",
     phone: "",
-    website: ""
+    website: "",
+    businessNumber: ""
   });
 
   // Fetch user data
@@ -64,7 +69,16 @@ export default function Profile() {
 
   // Company update mutation
   const updateCompanyMutation = useMutation({
-    mutationFn: async (data: { name: string; address: string; phone: string; website: string }) => {
+    mutationFn: async (data: { 
+      name: string; 
+      streetAddress: string;
+      city: string;
+      province: string;
+      postalCode: string;
+      phone: string; 
+      website: string;
+      businessNumber: string;
+    }) => {
       const res = await apiRequest("PATCH", "/api/companies/current", data);
       return res.json();
     },
@@ -121,9 +135,13 @@ export default function Profile() {
   const handleCompanyEdit = () => {
     setCompanyData({
       name: company?.name || "",
-      address: company?.address || "",
+      streetAddress: company?.streetAddress || "",
+      city: company?.city || "",
+      province: company?.province || "",
+      postalCode: company?.postalCode || "",
       phone: company?.phone || "",
-      website: company?.website || ""
+      website: company?.website || "",
+      businessNumber: company?.businessNumber || ""
     });
     setIsEditingCompany(true);
   };
@@ -146,10 +164,14 @@ export default function Profile() {
   const handleCompanyCancel = () => {
     setIsEditingCompany(false);
     setCompanyData({
-      name: company?.name || "",
-      address: company?.address || "",
-      phone: company?.phone || "",
-      website: company?.website || ""
+      name: "",
+      streetAddress: "",
+      city: "",
+      province: "",
+      postalCode: "",
+      phone: "",
+      website: "",
+      businessNumber: ""
     });
   };
 
@@ -411,25 +433,55 @@ export default function Profile() {
                   </form>
                 ) : (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label>Company Name</Label>
-                        <Input value={company?.name || ""} readOnly />
+                        <Label className="font-medium">Company Name</Label>
+                        <div className="p-2 border rounded-md bg-gray-50">{company?.name || "Not provided"}</div>
                       </div>
                       <div className="space-y-2">
-                        <Label>Phone Number</Label>
-                        <Input value={company?.phone || "Not provided"} readOnly />
+                        <Label className="font-medium">Business Number</Label>
+                        <div className="p-2 border rounded-md bg-gray-50">{company?.businessNumber || "Not provided"}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label className="font-medium">Phone Number</Label>
+                        <div className="p-2 border rounded-md bg-gray-50">{company?.phone || "Not provided"}</div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-medium">Website</Label>
+                        <div className="p-2 border rounded-md bg-gray-50">
+                          {company?.website ? (
+                            <a 
+                              href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              {company.website}
+                            </a>
+                          ) : (
+                            "Not provided"
+                          )}
+                        </div>
                       </div>
                     </div>
                     
                     <div className="space-y-2">
-                      <Label>Address</Label>
-                      <Input value={company?.address || "Not provided"} readOnly />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Website</Label>
-                      <Input value={company?.website || "Not provided"} readOnly />
+                      <Label className="font-medium">Address</Label>
+                      <div className="p-2 border rounded-md bg-gray-50">
+                        {company?.streetAddress ? (
+                          <>
+                            <p>{company.streetAddress}</p>
+                            <p>{company.city}, {company.province} {company.postalCode}</p>
+                          </>
+                        ) : company?.address ? (
+                          <p>{company.address}</p>
+                        ) : (
+                          "Not provided"
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

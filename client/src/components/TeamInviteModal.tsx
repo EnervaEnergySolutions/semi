@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -18,11 +19,13 @@ interface TeamInviteModalProps {
 
 export function TeamInviteModal({ isOpen, onClose }: TeamInviteModalProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [inviteData, setInviteData] = useState({
     email: "",
     firstName: "",
     lastName: "",
-    message: ""
+    message: "",
+    permissionLevel: "viewer"
   });
 
   const inviteMutation = useMutation({
@@ -33,8 +36,9 @@ export function TeamInviteModal({ isOpen, onClose }: TeamInviteModalProps) {
     onSuccess: () => {
       toast({
         title: "Invitation Sent",
-        description: "Team member invitation has been sent successfully.",
+        description: "Team member invited successfully. An email with login instructions has been sent.",
       });
+      queryClient.invalidateQueries({ queryKey: ['/api/team'] });
       queryClient.invalidateQueries({ queryKey: ["/api/team"] });
       setInviteData({
         email: "",
@@ -145,6 +149,22 @@ export function TeamInviteModal({ isOpen, onClose }: TeamInviteModalProps) {
                   <li>• Manage all team member permissions from the team dashboard</li>
                 </ul>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="permissionLevel">Permission Level</Label>
+              <Select
+                value={inviteData.permissionLevel}
+                onValueChange={(value) => setInviteData(prev => ({ ...prev, permissionLevel: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select permission level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="viewer">Viewer - Can only view data</SelectItem>
+                  <SelectItem value="editor">Editor - Can edit applications</SelectItem>
+                  <SelectItem value="manager">Manager - Can manage team members</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
