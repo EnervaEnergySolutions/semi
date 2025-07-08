@@ -1637,10 +1637,16 @@ export function registerRoutes(app: Express) {
 
       const user = await dbStorage.getUserById(userId);
       if (!user || !user.companyId) {
-        return res.status(404).json({ message: "Contractor company not found" });
-      }
-
-      // Check if user is contractor account owner or manager
+     // Check if user has permission to update permission levels (company_admin or team_member with manager permission)
+     const canUpdatePermissions = currentUser.role === 'company_admin' || 
+                                (currentUser.role === 'team_member' && currentUser.permissionLevel === 'manager');
+     
+     if (!canUpdatePermissions) {
+       return res.status(403).json({ message: "You don't have permission to update user permissions. Only company admins and team members with manager permissions can update permissions." });
+                      (invitingUser.role === 'team_member' && invitingUser.permissionLevel === 'manager');
+     
+     if (!canInvite) {
+       return res.status(403).json({ message: "You don't have permission to invite team members. Only company admins and team members with manager permissions can invite others." });
       if (user.role !== 'contractor_individual' && user.role !== 'contractor_account_owner' && user.role !== 'contractor_manager') {
         return res.status(403).json({ message: "Only contractor managers and account owners can invite team members" });
       }

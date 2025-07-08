@@ -304,6 +304,11 @@ export default function Profile() {
                   <Badge className={getRoleBadgeColor(user?.role)} variant="outline">
                     {getRoleDisplay(user?.role)}
                   </Badge>
+                  {user?.role === 'team_member' && user?.permissionLevel && (
+                    <Badge variant="outline" className={`bg-${PERMISSION_LEVEL_INFO[user.permissionLevel as keyof typeof PERMISSION_LEVEL_INFO]?.color}-50 text-${PERMISSION_LEVEL_INFO[user.permissionLevel as keyof typeof PERMISSION_LEVEL_INFO]?.color}-700`}>
+                      {PERMISSION_LEVEL_INFO[user.permissionLevel as keyof typeof PERMISSION_LEVEL_INFO]?.label || user.permissionLevel}
+                    </Badge>
+                  )}
                 </div>
               </div>
 
@@ -453,6 +458,16 @@ export default function Profile() {
                         <Label className="font-medium">Website</Label>
                         <div className="p-2 border rounded-md bg-gray-50">
                           {company?.website ? (
+                    
+                    <div className="space-y-2">
+                      <Label>Business Number</Label>
+                      <Input value={company?.businessNumber || "Not provided"} readOnly />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Short Name</Label>
+                      <Input value={company?.shortName || "Not provided"} readOnly />
+                    </div>
                             <a 
                               href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
                               target="_blank"

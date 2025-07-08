@@ -69,10 +69,6 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     PERMISSIONS.VIEW_COMPANY,
     PERMISSIONS.VIEW_TEAM_MEMBERS,
     PERMISSIONS.VIEW_FACILITIES,
-    PERMISSIONS.VIEW_APPLICATIONS,
-    PERMISSIONS.VIEW_DOCUMENTS,
-    PERMISSIONS.DOWNLOAD_DOCUMENTS,
-    PERMISSIONS.VIEW_CONTRACTORS,
   ],
   
   contractor_individual: [
@@ -183,6 +179,7 @@ export function hasPermissionLevel(user: any, requiredLevel: string): boolean {
   
   // For team members, check permission level
   if (user.role === 'team_member') {
+    // Default to viewer if permissionLevel is not set
     const userLevel = user.permissionLevel || 'viewer';
     
     switch (requiredLevel) {
@@ -201,25 +198,25 @@ export function hasPermissionLevel(user: any, requiredLevel: string): boolean {
 }
 
 export function canInviteUsers(user: any): boolean {
-  if (!user) return false;
+  return user?.role === 'company_admin' || (user?.role === 'team_member' && user?.permissionLevel === 'manager');
   return user.role === 'company_admin' || 
          (user.role === 'team_member' && user.permissionLevel === 'manager');
 }
 
 export function canEditPermissions(user: any): boolean {
-  if (!user) return false;
+  return user?.role === 'company_admin' || (user?.role === 'team_member' && user?.permissionLevel === 'manager');
   return user.role === 'company_admin' || 
          (user.role === 'team_member' && user.permissionLevel === 'manager');
 }
 
 export function canCreateEdit(user: any): boolean {
-  if (!user) return false;
+  return user?.role === 'company_admin' || (user?.role === 'team_member' && ['editor', 'manager'].includes(user?.permissionLevel || ''));
   return user.role === 'company_admin' || 
          (user.role === 'team_member' && (user.permissionLevel === 'editor' || user.permissionLevel === 'manager'));
 }
 
 export function canViewOnly(user: any): boolean {
-  if (!user) return false;
+  return user?.role === 'team_member' && (user?.permissionLevel === 'viewer' || !user?.permissionLevel);
   return user.role === 'team_member' && user.permissionLevel === 'viewer';
 }
 

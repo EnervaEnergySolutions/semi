@@ -54,7 +54,7 @@ export default function TeamManagement() {
 
   const inviteUserMutation = useMutation({
     mutationFn: async (userData: any) => {
-      const res = await apiRequest("/api/team/invite", "POST", userData);
+      const res = await apiRequest("POST", "/api/team/invite", userData);
       return res.json();
     }, 
     onSuccess: (data) => {
@@ -76,7 +76,7 @@ export default function TeamManagement() {
 
   const transferAdminMutation = useMutation({
     mutationFn: async ({ newAdminId }: { newAdminId: string }) => {
-      return await apiRequest(`/api/team/transfer-admin`, 'PATCH', { newAdminId });
+      return await apiRequest("PATCH", `/api/team/transfer-admin`, { newAdminId });
     },
     onSuccess: () => {
       toast({
@@ -99,7 +99,7 @@ export default function TeamManagement() {
 
   const updatePermissionLevelMutation = useMutation({
     mutationFn: async ({ userId, permissionLevel }: { userId: string; permissionLevel: string }) => {
-      return await apiRequest(`/api/users/${userId}/permission-level`, 'PATCH', { permissionLevel });
+      return await apiRequest("PATCH", `/api/users/${userId}/permission-level`, { permissionLevel });
     },
     onSuccess: () => {
       toast({
@@ -121,7 +121,7 @@ export default function TeamManagement() {
 
   const deactivateUserMutation = useMutation({
     mutationFn: async ({ userId }: { userId: string }) => {
-      return await apiRequest(`/api/users/${userId}/deactivate`, 'PATCH', {});
+      return await apiRequest("PATCH", `/api/users/${userId}/deactivate`, {});
     },
     onSuccess: () => {
       toast({
