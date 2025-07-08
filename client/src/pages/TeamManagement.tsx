@@ -43,9 +43,10 @@ export default function TeamManagement() {
   const { toast } = useToast();
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [selectedMember, setSelectedMember] = useState<any>(null);
-  const [showPermissionLevelDialog, setShowPermissionLevelDialog] = useState(false);
+  const [showPermissionLevelDialog, setShowPermissionLevelDialog] = useState<boolean>(false);
   const [showTransferAdminDialog, setShowTransferAdminDialog] = useState(false);
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
+  const [permissionLevel, setPermissionLevel] = useState<string>("viewer");
 
   const { data: teamMembers = [], isLoading: isLoadingTeam } = useQuery({
     queryKey: ['/api/team'],
@@ -55,7 +56,7 @@ export default function TeamManagement() {
     mutationFn: async (userData: any) => {
       const res = await apiRequest("/api/team/invite", "POST", userData);
       return res.json();
-    },
+    }, 
     onSuccess: (data) => {
       toast({
         title: "Invitation sent",
@@ -72,8 +73,6 @@ export default function TeamManagement() {
       });
     }
   });
-
-
 
   const transferAdminMutation = useMutation({
     mutationFn: async ({ newAdminId }: { newAdminId: string }) => {
@@ -148,12 +147,14 @@ export default function TeamManagement() {
     const email = formData.get('email') as string;
     const firstName = formData.get('firstName') as string;
     const lastName = formData.get('lastName') as string;
-    const message = formData.get('message') as string;
+    const permissionLevel = formData.get('permissionLevel') as string;
+    const message = formData.get('message') as string || '';
 
     inviteUserMutation.mutate({
       email,
       firstName,
       lastName,
+      permissionLevel,
       message
     });
   };
@@ -247,6 +248,20 @@ export default function TeamManagement() {
                 <div>
                   <Label htmlFor="email">Email Address</Label>
                   <Input id="email" name="email" type="email" required />
+                </div>
+                
+                <div>
+                  <Label htmlFor="permissionLevel">Permission Level</Label>
+                  <Select name="permissionLevel" defaultValue="viewer">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select permission level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="viewer">Viewer - Can only view data</SelectItem>
+                      <SelectItem value="editor">Editor - Can edit applications</SelectItem>
+                      <SelectItem value="manager">Manager - Can manage team members</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
@@ -440,6 +455,7 @@ export default function TeamManagement() {
                               onClick={() => {
                                 console.log('Change Permissions clicked for member:', member);
                                 setSelectedMember(member);
+                                setPermissionLevel(member.permissionLevel || 'viewer');
                                 setShowPermissionLevelDialog(true);
                               }}
                             >
@@ -553,8 +569,6 @@ export default function TeamManagement() {
           </DialogHeader>
           <form onSubmit={(e) => {
             e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            const permissionLevel = formData.get('permissionLevel') as string;
             if (selectedMember && permissionLevel) {
               updatePermissionLevelMutation.mutate({ 
                 userId: selectedMember.id, 
@@ -565,7 +579,7 @@ export default function TeamManagement() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="permissionLevel">Permission Level</Label>
-                <Select name="permissionLevel" defaultValue={selectedMember?.permissionLevel || 'viewer'}>
+                <Select value={permissionLevel} onValueChange={setPermissionLevel}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select permission level" />
                   </SelectTrigger>
