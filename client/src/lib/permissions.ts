@@ -201,19 +201,26 @@ export function hasPermissionLevel(user: any, requiredLevel: string): boolean {
 }
 
 export function canInviteUsers(user: any): boolean {
-  return user?.role === 'company_admin' || hasPermissionLevel(user, 'manager');
+  if (!user) return false;
+  return user.role === 'company_admin' || 
+         (user.role === 'team_member' && user.permissionLevel === 'manager');
 }
 
 export function canEditPermissions(user: any): boolean {
-  return user?.role === 'company_admin' || hasPermissionLevel(user, 'manager');
+  if (!user) return false;
+  return user.role === 'company_admin' || 
+         (user.role === 'team_member' && user.permissionLevel === 'manager');
 }
 
 export function canCreateEdit(user: any): boolean {
-  return user?.role === 'company_admin' || hasPermissionLevel(user, 'editor');
+  if (!user) return false;
+  return user.role === 'company_admin' || 
+         (user.role === 'team_member' && (user.permissionLevel === 'editor' || user.permissionLevel === 'manager'));
 }
 
 export function canViewOnly(user: any): boolean {
-  return hasPermissionLevel(user, 'viewer');
+  if (!user) return false;
+  return user.role === 'team_member' && user.permissionLevel === 'viewer';
 }
 
 // Permission level info
